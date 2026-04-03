@@ -68,13 +68,38 @@ SEP_INSTRUMENTS = [
 
 
 def _find_ffmpeg():
-    for p in ["/opt/homebrew/bin/ffmpeg", "/usr/local/bin/ffmpeg", "/usr/bin/ffmpeg"]:
+    # 0) exe와 같은 폴더 (PyInstaller 번들)
+    if getattr(sys, 'frozen', False):
+        exe_dir = os.path.dirname(sys.executable)
+        bundled = os.path.join(exe_dir, "ffmpeg.exe")
+        if os.path.isfile(bundled):
+            return bundled
+    # 1) shutil.which로 PATH에서 찾기
+    found = shutil.which("ffmpeg")
+    if found:
+        return found
+    # 2) 잘 알려진 경로 직접 확인
+    candidates = []
+    if sys.platform == "win32":
+        candidates = [
+            r"C:\ffmpeg\bin\ffmpeg.exe",
+            r"C:\Program Files\ffmpeg\bin\ffmpeg.exe",
+        ]
+        # winget 설치 경로 탐색
+        winget_base = os.path.join(os.environ.get("LOCALAPPDATA", ""),
+                                   "Microsoft", "WinGet", "Packages")
+        if os.path.isdir(winget_base):
+            for d in os.listdir(winget_base):
+                if "ffmpeg" in d.lower():
+                    bin_path = os.path.join(winget_base, d)
+                    for root, dirs, files in os.walk(bin_path):
+                        if "ffmpeg.exe" in files:
+                            candidates.append(os.path.join(root, "ffmpeg.exe"))
+    else:
+        candidates = ["/opt/homebrew/bin/ffmpeg", "/usr/local/bin/ffmpeg", "/usr/bin/ffmpeg"]
+    for p in candidates:
         if os.path.isfile(p):
             return p
-    if sys.platform == "win32":
-        for p in [r"C:\ffmpeg\bin\ffmpeg.exe", r"C:\Program Files\ffmpeg\bin\ffmpeg.exe"]:
-            if os.path.isfile(p):
-                return p
     return "ffmpeg"
 
 

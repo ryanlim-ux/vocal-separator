@@ -22,6 +22,13 @@ jobs:
           pip install pyinstaller
           pip install demucs torch torchaudio soundfile customtkinter tkinterdnd2 numpy
 
+      - name: Download ffmpeg
+        run: |
+          curl -L -o ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
+          7z x ffmpeg.zip -offmpeg_tmp
+          $ffDir = Get-ChildItem ffmpeg_tmp -Directory | Select-Object -First 1
+          Copy-Item "$($ffDir.FullName)\bin\ffmpeg.exe" -Destination "ffmpeg.exe"
+
       - name: Build Voice-Separator.exe
         run: |
           python -m PyInstaller --name "Voice-Separator" --windowed --onedir --noconfirm `
@@ -38,6 +45,9 @@ jobs:
             --hidden-import customtkinter --hidden-import tkinterdnd2 `
             --hidden-import darkdetect --hidden-import numpy `
             app.py
+
+      - name: Bundle ffmpeg
+        run: Copy-Item "ffmpeg.exe" -Destination "dist/Voice-Separator/ffmpeg.exe"
 
       - name: Zip Voice-Separator
         run: Compress-Archive -Path "dist/Voice-Separator" -DestinationPath "Voice-Separator-Windows.zip"
@@ -65,6 +75,13 @@ jobs:
           pip install audio-separator onnxruntime
           pip install customtkinter tkinterdnd2 numpy soundfile
 
+      - name: Download ffmpeg
+        run: |
+          curl -L -o ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
+          7z x ffmpeg.zip -offmpeg_tmp
+          $ffDir = Get-ChildItem ffmpeg_tmp -Directory | Select-Object -First 1
+          Copy-Item "$($ffDir.FullName)\bin\ffmpeg.exe" -Destination "ffmpeg.exe"
+
       - name: Build Vocal-Separator.exe
         run: |
           python -m PyInstaller --name "Vocal-Separator" --windowed --onedir --noconfirm `
@@ -77,6 +94,9 @@ jobs:
             --hidden-import onnx2torch --hidden-import ml_collections `
             --hidden-import beartype --hidden-import rotary_embedding_torch `
             app_uvr.py
+
+      - name: Bundle ffmpeg
+        run: Copy-Item "ffmpeg.exe" -Destination "dist/Vocal-Separator/ffmpeg.exe"
 
       - name: Zip Vocal-Separator
         run: Compress-Archive -Path "dist/Vocal-Separator" -DestinationPath "Vocal-Separator-Windows.zip"
