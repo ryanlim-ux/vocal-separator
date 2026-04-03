@@ -100,7 +100,7 @@ class DnDCTk(ctk.CTk, TkinterDnD.DnDWrapper):
 class VocalSeparatorPro:
     def __init__(self):
         self.root = DnDCTk()
-        self.root.title("Vocal-Separator")
+        self.root.title("Vocal-Separator | 보컬 분리기")
         self.root.geometry("920x920")
         self.root.configure(fg_color=C["bg"])
         self.root.minsize(840, 860)
@@ -129,7 +129,7 @@ class VocalSeparatorPro:
             self.sep_checks[key] = tk.BooleanVar(value=False)
             self.sep_suffixes[key] = tk.StringVar(value=f"_{key}")
 
-        self.save_to_source = tk.BooleanVar(value=False)
+        self.save_to_source = tk.BooleanVar(value=True)
 
         self._build_ui()
 
@@ -165,7 +165,7 @@ class VocalSeparatorPro:
 
         header = ctk.CTkFrame(main, fg_color="transparent")
         header.pack(fill="x", pady=(0, 20))
-        self._label(header, "Vocal-Separator", size=28, bold=True).pack(side="left")
+        self._label(header, "Vocal-Separator | 보컬 분리기", size=28, bold=True).pack(side="left")
         self._label(header, "MDX-Net / Demucs 6-Stem", size=13,
                     color=C["dim"]).pack(side="left", padx=(12, 0), pady=(8, 0))
 
@@ -336,6 +336,10 @@ class VocalSeparatorPro:
                       hover_color=C["border"], text_color=C["text"],
                       font=ctk.CTkFont(size=12), command=self._choose_output_dir)
         self.dir_change_btn.pack(side="left")
+
+        if self.save_to_source.get():
+            self.dir_entry.configure(state="disabled")
+            self.dir_change_btn.configure(state="disabled")
 
         # 포맷
         row2 = ctk.CTkFrame(inner, fg_color="transparent")

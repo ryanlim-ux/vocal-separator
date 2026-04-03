@@ -67,7 +67,7 @@ class DnDCTk(ctk.CTk, TkinterDnD.DnDWrapper):
 class VoiceSeparatorApp:
     def __init__(self):
         self.root = DnDCTk()
-        self.root.title("Voice-Separator")
+        self.root.title("Voice-Separator | 음성 분리기")
         self.root.geometry("900x720")
         self.root.configure(fg_color=C["bg"])
         self.root.minsize(820, 680)
@@ -80,7 +80,7 @@ class VoiceSeparatorApp:
 
         self.suffix_voice = tk.StringVar(value="_voice")
         self.suffix_inst = tk.StringVar(value="_inst")
-        self.save_to_source = tk.BooleanVar(value=False)
+        self.save_to_source = tk.BooleanVar(value=True)
 
         self._build_ui()
 
@@ -105,7 +105,7 @@ class VoiceSeparatorApp:
 
         header = ctk.CTkFrame(main, fg_color="transparent")
         header.pack(fill="x", pady=(0, 20))
-        self._label(header, "Voice-Separator", size=28, bold=True).pack(side="left")
+        self._label(header, "Voice-Separator | 음성 분리기", size=28, bold=True).pack(side="left")
         self._label(header, "Voice / Instrumental Splitter", size=13,
                     color=C["dim"]).pack(side="left", padx=(12, 0), pady=(8, 0))
 
@@ -194,6 +194,10 @@ class VoiceSeparatorApp:
                       hover_color=C["border"], text_color=C["text"],
                       font=ctk.CTkFont(size=12), command=self._choose_output_dir)
         self.dir_change_btn.pack(side="left")
+
+        if self.save_to_source.get():
+            self.dir_entry.configure(state="disabled")
+            self.dir_change_btn.configure(state="disabled")
 
         row2 = ctk.CTkFrame(inner, fg_color="transparent")
         row2.pack(fill="x", pady=(14, 0))
