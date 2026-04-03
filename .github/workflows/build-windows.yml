@@ -1,0 +1,88 @@
+name: Build Windows Executables
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # 수동 실행 가능
+
+jobs:
+  build-voice-separator:
+    name: Build Voice-Separator (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install pyinstaller
+          pip install demucs torch torchaudio soundfile customtkinter tkinterdnd2 numpy
+
+      - name: Build Voice-Separator.exe
+        run: |
+          python -m PyInstaller --name "Voice-Separator" --windowed --onedir --noconfirm `
+            --exclude-module scipy --exclude-module matplotlib --exclude-module PIL `
+            --exclude-module Pillow --exclude-module noisereduce `
+            --collect-all demucs --collect-all julius --collect-all openunmix `
+            --collect-all customtkinter --collect-all tkinterdnd2 `
+            --hidden-import torch --hidden-import torchaudio --hidden-import demucs `
+            --hidden-import demucs.pretrained --hidden-import demucs.hdemucs `
+            --hidden-import demucs.htdemucs --hidden-import demucs.apply `
+            --hidden-import demucs.states --hidden-import demucs.spec `
+            --hidden-import julius --hidden-import soundfile --hidden-import cffi `
+            --hidden-import tqdm --hidden-import omegaconf --hidden-import einops `
+            --hidden-import customtkinter --hidden-import tkinterdnd2 `
+            --hidden-import darkdetect --hidden-import numpy `
+            app.py
+
+      - name: Zip Voice-Separator
+        run: Compress-Archive -Path "dist/Voice-Separator" -DestinationPath "Voice-Separator-Windows.zip"
+
+      - name: Upload Voice-Separator
+        uses: actions/upload-artifact@v4
+        with:
+          name: Voice-Separator-Windows
+          path: Voice-Separator-Windows.zip
+
+  build-vocal-separator:
+    name: Build Vocal-Separator (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install pyinstaller
+          pip install audio-separator onnxruntime
+          pip install customtkinter tkinterdnd2 numpy soundfile
+
+      - name: Build Vocal-Separator.exe
+        run: |
+          python -m PyInstaller --name "Vocal-Separator" --windowed --onedir --noconfirm `
+            --collect-all audio_separator --collect-all customtkinter --collect-all tkinterdnd2 `
+            --collect-all librosa `
+            --hidden-import torch --hidden-import soundfile --hidden-import cffi `
+            --hidden-import numpy --hidden-import scipy --hidden-import onnxruntime `
+            --hidden-import customtkinter --hidden-import tkinterdnd2 --hidden-import darkdetect `
+            --hidden-import audio_separator --hidden-import audio_separator.separator `
+            --hidden-import onnx2torch --hidden-import ml_collections `
+            --hidden-import beartype --hidden-import rotary_embedding_torch `
+            app_uvr.py
+
+      - name: Zip Vocal-Separator
+        run: Compress-Archive -Path "dist/Vocal-Separator" -DestinationPath "Vocal-Separator-Windows.zip"
+
+      - name: Upload Vocal-Separator
+        uses: actions/upload-artifact@v4
+        with:
+          name: Vocal-Separator-Windows
+          path: Vocal-Separator-Windows.zip
